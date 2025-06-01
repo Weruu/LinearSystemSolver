@@ -4,14 +4,14 @@ using System.Text;
 namespace LinearSystemSolver
 {
     /// <summary>
-    /// Вспомогательные методы для работы с матрицами
+    /// Клас допоміжних методів для роботи з матрицями
     /// </summary>
     public static class MatrixHelper
     {
-        private const double EPSILON = 1e-12; // Точность для сравнения с нулем
+        private const double EPSILON = 1e-12; // Константа для порівняння чисел з плаваючою точкою
 
         /// <summary>
-        /// Создает новую матрицу размером n x (n+1)
+        /// Створює нову матрицю розміром n x (n+1) (розширену матрицю системи)
         /// </summary>
         public static double[,] CreateMatrix(int n)
         {
@@ -19,7 +19,7 @@ namespace LinearSystemSolver
         }
 
         /// <summary>
-        /// Клонирует матрицу
+        /// Повністю копіює матрицю
         /// </summary>
         public static double[,] CloneMatrix(double[,] matrix)
         {
@@ -38,7 +38,7 @@ namespace LinearSystemSolver
         }
 
         /// <summary>
-        /// Извлекает матрицу коэффициентов из расширенной матрицы
+        /// Виділяє матрицю коефіцієнтів з розширеної матриці системи
         /// </summary>
         public static double[,] ExtractCoefficientMatrix(double[,] augmentedMatrix)
         {
@@ -56,7 +56,7 @@ namespace LinearSystemSolver
         }
 
         /// <summary>
-        /// Извлекает вектор правых частей из расширенной матрицы
+        /// Виділяє вектор правих частин з розширеної матриці системи
         /// </summary>
         public static double[] ExtractRightHandSide(double[,] augmentedMatrix)
         {
@@ -71,21 +71,22 @@ namespace LinearSystemSolver
         }
 
         /// <summary>
-        /// Вычисляет определитель матрицы методом Гаусса
+        /// Обчислює визначник квадратної матриці методом Гауса
         /// </summary>
         public static double CalculateDeterminant(double[,] matrix)
         {
             int n = matrix.GetLength(0);
             if (n != matrix.GetLength(1))
-                throw new ArgumentException("Матрица должна быть квадратной");
+                throw new ArgumentException("Матриця повинна бути квадратною");
 
-            double[,] temp = CloneSquareMatrix(matrix);
-            double det = 1.0;
-            int swapCount = 0;
+            double[,] temp = CloneSquareMatrix(matrix); // Робоча копія матриці
+            double det = 1.0; // Початкове значення визначника
+            int swapCount = 0; // Лічильник перестановок рядків
 
+            // Прямий хід методу Гауса
             for (int k = 0; k < n; k++)
             {
-                // Поиск максимального элемента для частичного выбора главного элемента
+                // Пошук рядка з максимальним елементом у поточному стовпці
                 int maxRow = k;
                 for (int i = k + 1; i < n; i++)
                 {
@@ -93,20 +94,20 @@ namespace LinearSystemSolver
                         maxRow = i;
                 }
 
-                // Проверка на вырожденность
+                // Перевірка на виродженість матриці
                 if (Math.Abs(temp[maxRow, k]) < EPSILON)
                     return 0.0;
 
-                // Перестановка строк
+                // Перестановка рядків, якщо потрібно
                 if (maxRow != k)
                 {
                     SwapRows(temp, k, maxRow);
                     swapCount++;
                 }
 
-                det *= temp[k, k];
+                det *= temp[k, k]; // Домножуємо визначник на діагональний елемент
 
-                // Прямой ход Гаусса
+                // Обнулення елементів нижче головної діагоналі
                 for (int i = k + 1; i < n; i++)
                 {
                     double factor = temp[i, k] / temp[k, k];
@@ -117,13 +118,16 @@ namespace LinearSystemSolver
                 }
             }
 
-            // Учитываем знак от перестановок
+            // Коригування знаку визначника за кількістю перестановок
             if (swapCount % 2 == 1)
                 det = -det;
 
             return det;
         }
 
+        /// <summary>
+        /// Копіює квадратну матрицю
+        /// </summary>
         private static double[,] CloneSquareMatrix(double[,] matrix)
         {
             int n = matrix.GetLength(0);
@@ -139,7 +143,7 @@ namespace LinearSystemSolver
         }
 
         /// <summary>
-        /// Меняет местами две строки в матрице
+        /// Міняє місцями два рядки матриці
         /// </summary>
         public static void SwapRows(double[,] matrix, int row1, int row2)
         {
@@ -153,7 +157,7 @@ namespace LinearSystemSolver
         }
 
         /// <summary>
-        /// Находит строку с максимальным элементом в столбце (для частичного pivoting)
+        /// Знаходить рядок з максимальним елементом у стовпці (для часткового вибору головного елемента)
         /// </summary>
         public static int FindPivotRow(double[,] matrix, int col, int startRow)
         {
@@ -169,7 +173,7 @@ namespace LinearSystemSolver
         }
 
         /// <summary>
-        /// Проверяет, является ли число практически нулевым
+        /// Перевіряє, чи число можна вважати нулем (з урахуванням похибки)
         /// </summary>
         public static bool IsZero(double value)
         {
@@ -177,36 +181,36 @@ namespace LinearSystemSolver
         }
 
         /// <summary>
-        /// Вычисляет обратную матрицу методом Жордана-Гаусса
+        /// Обчислює обернену матрицю методом Жордана-Гауса
         /// </summary>
         public static double[,] GetInverseMatrix(double[,] matrix)
         {
             int n = matrix.GetLength(0);
             if (n != matrix.GetLength(1))
-                throw new ArgumentException("Матрица должна быть квадратной");
+                throw new ArgumentException("Матриця повинна бути квадратною");
 
-            // Проверяем определитель
+            // Перевірка на виродженість
             double det = CalculateDeterminant(matrix);
             if (IsZero(det))
-                throw new InvalidOperationException("Матрица вырождена (определитель равен нулю)");
+                throw new InvalidOperationException("Матриця вироджена (визначник дорівнює нулю)");
 
-            double[,] inverse = new double[n, n];
-            double[,] augmented = new double[n, 2 * n];
+            double[,] inverse = new double[n, n]; // Тут буде результат
+            double[,] augmented = new double[n, 2 * n]; // Розширена матриця [A|I]
 
-            // Создаем расширенную матрицу [A|I]
+            // Формуємо розширену матрицю [A|I]
             for (int i = 0; i < n; i++)
             {
                 for (int j = 0; j < n; j++)
                 {
-                    augmented[i, j] = matrix[i, j];
-                    augmented[i, j + n] = (i == j) ? 1.0 : 0.0;
+                    augmented[i, j] = matrix[i, j]; // Копіюємо вихідну матрицю
+                    augmented[i, j + n] = (i == j) ? 1.0 : 0.0; // Одинична матриця
                 }
             }
 
-            // Метод Жордана-Гаусса с выбором главного элемента
+            // Метод Жордана-Гауса з вибором головного елемента
             for (int k = 0; k < n; k++)
             {
-                // Поиск максимального элемента в столбце
+                // Пошук рядка з максимальним елементом у поточному стовпці
                 int maxRow = k;
                 for (int i = k + 1; i < n; i++)
                 {
@@ -214,7 +218,7 @@ namespace LinearSystemSolver
                         maxRow = i;
                 }
 
-                // Перестановка строк
+                // Перестановка рядків
                 if (maxRow != k)
                 {
                     for (int j = 0; j < 2 * n; j++)
@@ -227,15 +231,15 @@ namespace LinearSystemSolver
 
                 double pivot = augmented[k, k];
                 if (IsZero(pivot))
-                    throw new InvalidOperationException("Матрица вырождена");
+                    throw new InvalidOperationException("Матриця вироджена");
 
-                // Нормализация строки k
+                // Нормалізація поточного рядка
                 for (int j = 0; j < 2 * n; j++)
                 {
                     augmented[k, j] /= pivot;
                 }
 
-                // Обнуление других строк
+                // Обнулення інших рядків
                 for (int i = 0; i < n; i++)
                 {
                     if (i != k)
@@ -249,7 +253,7 @@ namespace LinearSystemSolver
                 }
             }
 
-            // Извлекаем обратную матрицу из правой части
+            // Виділення оберненої матриці з правої частини
             for (int i = 0; i < n; i++)
             {
                 for (int j = 0; j < n; j++)
@@ -262,7 +266,7 @@ namespace LinearSystemSolver
         }
 
         /// <summary>
-        /// Умножает матрицу на вектор
+        /// Множить матрицю на вектор
         /// </summary>
         public static double[] MultiplyMatrixVector(double[,] matrix, double[] vector)
         {
@@ -270,7 +274,7 @@ namespace LinearSystemSolver
             int cols = matrix.GetLength(1);
 
             if (cols != vector.Length)
-                throw new ArgumentException("Несовместимые размеры матрицы и вектора");
+                throw new ArgumentException("Невідповідність розмірів матриці та вектора");
 
             double[] result = new double[rows];
             for (int i = 0; i < rows; i++)
@@ -285,13 +289,14 @@ namespace LinearSystemSolver
         }
 
         /// <summary>
-        /// Вычисляет максимальную погрешность решения
+        /// Обчислює максимальну похибку розв'язку
         /// </summary>
         public static double CalculateMaxError(double[,] originalMatrix, double[] solution)
         {
             int n = solution.Length;
             double maxError = 0.0;
 
+            // Для кожного рівняння обчислюємо похибку
             for (int i = 0; i < n; i++)
             {
                 double sum = 0.0;
@@ -299,7 +304,7 @@ namespace LinearSystemSolver
                 {
                     sum += originalMatrix[i, j] * solution[j];
                 }
-                double error = Math.Abs(sum - originalMatrix[i, n]);
+                double error = Math.Abs(sum - originalMatrix[i, n]); // Різниця між лівою та правою частиною
                 maxError = Math.Max(maxError, error);
             }
 
@@ -307,7 +312,7 @@ namespace LinearSystemSolver
         }
 
         /// <summary>
-        /// Преобразует матрицу в строковое представление
+        /// Перетворює матрицю у рядкове представлення для виводу
         /// </summary>
         public static string MatrixToString(double[,] matrix, string title = "")
         {
@@ -321,13 +326,14 @@ namespace LinearSystemSolver
                 sb.AppendLine(new string('-', title.Length));
             }
 
+            // Форматування матриці з рамками
             for (int i = 0; i < rows; i++)
             {
                 sb.Append("│ ");
                 for (int j = 0; j < cols; j++)
                 {
-                    sb.Append($"{matrix[i, j],10:F4}");
-                    if (j == cols - 2) sb.Append(" │ "); // Разделитель перед последним столбцом
+                    sb.Append($"{matrix[i, j],10:F4}"); // Формат числа: 10 знаків, 4 знаки після коми
+                    if (j == cols - 2) sb.Append(" │ "); // Розділювач перед останнім стовпцем
                     else if (j < cols - 1) sb.Append("  ");
                 }
                 sb.AppendLine(" │");
@@ -338,37 +344,38 @@ namespace LinearSystemSolver
         }
 
         /// <summary>
-        /// Проверяет ранги матриц для определения типа решения
+        /// Визначає тип розв'язку системи (єдиний, безліч, відсутність)
         /// </summary>
         public static SolutionStatus CheckSolutionType(double[,] matrix)
         {
             int n = matrix.GetLength(0);
             double[,] coeffMatrix = ExtractCoefficientMatrix(matrix);
 
-            int rankA = CalculateRank(coeffMatrix);
-            int rankAb = CalculateRank(matrix);
+            int rankA = CalculateRank(coeffMatrix); // Ранг матриці коефіцієнтів
+            int rankAb = CalculateRank(matrix);     // Ранг розширеної матриці
 
+            // Критерій Кронекера-Капеллі
             if (rankA != rankAb)
-                return SolutionStatus.NoSolution;
+                return SolutionStatus.NoSolution;      // Система несумісна
             else if (rankA == n)
-                return SolutionStatus.UniqueSolution;
+                return SolutionStatus.UniqueSolution;  // Єдиний розв'язок
             else
-                return SolutionStatus.InfiniteSolutions;
+                return SolutionStatus.InfiniteSolutions; // Безліч розв'язків
         }
 
         /// <summary>
-        /// Вычисляет ранг матрицы
+        /// Обчислює ранг матриці методом Гауса
         /// </summary>
         public static int CalculateRank(double[,] matrix)
         {
             int rows = matrix.GetLength(0);
             int cols = matrix.GetLength(1);
-            double[,] temp = CloneMatrix(matrix);
+            double[,] temp = CloneMatrix(matrix); // Робоча копія матриці
 
             int rank = 0;
             for (int col = 0; col < cols && rank < rows; col++)
             {
-                // Находим ненулевой элемент в столбце
+                // Пошук ненульового елемента в поточному стовпці
                 int pivotRow = -1;
                 for (int row = rank; row < rows; row++)
                 {
@@ -379,15 +386,15 @@ namespace LinearSystemSolver
                     }
                 }
 
-                if (pivotRow == -1) continue; // Весь столбец нулевой
+                if (pivotRow == -1) continue; // Весь стовпець нульовий
 
-                // Меняем строки местами
+                // Перестановка рядків
                 if (pivotRow != rank)
                 {
                     SwapRows(temp, rank, pivotRow);
                 }
 
-                // Обнуляем элементы ниже главного
+                // Обнулення елементів нижче поточного
                 for (int row = rank + 1; row < rows; row++)
                 {
                     if (!IsZero(temp[row, col]))

@@ -9,23 +9,26 @@ namespace LinearSystemSolver
 {
     public partial class MainForm : Form
     {
-        private int size = 3;
-        private DataGridView dataGridView;
-        private Button solveButton;
-        private Button clearButton;
-        private Button saveButton;
-        private Button loadButton;
-        private ComboBox methodComboBox;
-        private TextBox resultTextBox;
-        private NumericUpDown sizeNumericUpDown;
-        private CheckBox showStepsCheckBox;
+        // Поля класу (елементи управління та дані)
+        private int size = 3; // Розмір системи за замовчуванням
+        private DataGridView dataGridView; // Таблиця для введення коефіцієнтів
+        private Button solveButton;       // Кнопка розв'язання
+        private Button clearButton;       // Кнопка очищення
+        private Button saveButton;       // Кнопка збереження
+        private Button loadButton;       // Кнопка завантаження
+        private ComboBox methodComboBox;  // Випадаючий список методів
+        private TextBox resultTextBox;    // Текстове поле для результатів
+        private NumericUpDown sizeNumericUpDown; // Елемент для вибору розміру
+        private CheckBox showStepsCheckBox;      // Прапорець показу кроків
 
+        // Конструктор форми
         public MainForm()
         {
             InitializeComponent();
-            InitializeUI();
+            InitializeUI(); // Ініціалізація інтерфейсу
         }
 
+        // Метод ініціалізації компонентів (створений автоматично)
         private void InitializeComponent()
         {
             this.SuspendLayout();
@@ -34,14 +37,16 @@ namespace LinearSystemSolver
             this.ResumeLayout(false);
         }
 
+        // Основний метод ініціалізації інтерфейсу
         private void InitializeUI()
         {
+            // Налаштування основного вікна
             this.Text = "Розв'язання СЛАР точними методами";
             this.ClientSize = new Size(1000, 700);
             this.MinimumSize = new Size(800, 600);
             this.StartPosition = FormStartPosition.CenterScreen;
 
-            // Панель управления
+            // Створення панелі управління
             Panel controlPanel = new Panel
             {
                 Location = new Point(10, 10),
@@ -50,7 +55,7 @@ namespace LinearSystemSolver
             };
             this.Controls.Add(controlPanel);
 
-            // Размер системы
+            // Елементи для вибору розміру системи
             Label sizeLabel = new Label
             {
                 Text = "Розмір системи:",
@@ -70,7 +75,7 @@ namespace LinearSystemSolver
             sizeNumericUpDown.ValueChanged += SizeNumericUpDown_ValueChanged;
             controlPanel.Controls.Add(sizeNumericUpDown);
 
-            // Метод решения
+            // Елементи для вибору методу розв'язання
             Label methodLabel = new Label
             {
                 Text = "Метод розв'язання:",
@@ -93,7 +98,7 @@ namespace LinearSystemSolver
             methodComboBox.SelectedIndex = 0;
             controlPanel.Controls.Add(methodComboBox);
 
-            // Показывать шаги
+            // Прапорець для показу кроків розв'язання
             showStepsCheckBox = new CheckBox
             {
                 Text = "Показати кроки розв'язання",
@@ -102,7 +107,7 @@ namespace LinearSystemSolver
             };
             controlPanel.Controls.Add(showStepsCheckBox);
 
-            // Кнопки
+            // Кнопки управління
             solveButton = new Button
             {
                 Text = "Розв'язати",
@@ -140,7 +145,7 @@ namespace LinearSystemSolver
             loadButton.Click += LoadButton_Click;
             controlPanel.Controls.Add(loadButton);
 
-            // Таблица для ввода данных
+            // Таблиця для введення коефіцієнтів
             dataGridView = new DataGridView
             {
                 Location = new Point(10, 100),
@@ -151,10 +156,10 @@ namespace LinearSystemSolver
                 ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize,
                 RowHeadersWidth = 50
             };
-            InitializeDataGridView();
+            InitializeDataGridView(); // Ініціалізація таблиці
             this.Controls.Add(dataGridView);
 
-            // Результаты
+            // Елементи для відображення результатів
             Label resultLabel = new Label
             {
                 Text = "Результати:",
@@ -176,7 +181,7 @@ namespace LinearSystemSolver
             };
             this.Controls.Add(resultTextBox);
 
-            // Статус бар
+            // Статусний рядок
             Label statusLabel = new Label
             {
                 Text = "Готовий до роботи. Введіть коефіцієнти системи рівнянь.",
@@ -187,12 +192,13 @@ namespace LinearSystemSolver
             this.Controls.Add(statusLabel);
         }
 
+        // Ініціалізація таблиці для введення коефіцієнтів
         private void InitializeDataGridView()
         {
             dataGridView.Columns.Clear();
             dataGridView.Rows.Clear();
 
-            // Добавляем столбцы для коэффициентов
+            // Додаємо стовпці для коефіцієнтів при змінних
             for (int i = 0; i < size; i++)
             {
                 DataGridViewTextBoxColumn col = new DataGridViewTextBoxColumn
@@ -205,7 +211,7 @@ namespace LinearSystemSolver
                 dataGridView.Columns.Add(col);
             }
 
-            // Добавляем столбец для свободных членов
+            // Додаємо стовпець для вільних членів
             DataGridViewTextBoxColumn colB = new DataGridViewTextBoxColumn
             {
                 Name = "colB",
@@ -218,13 +224,13 @@ namespace LinearSystemSolver
             };
             dataGridView.Columns.Add(colB);
 
-            // Добавляем строки
+            // Додаємо рядки зі значеннями за замовчуванням (одинична матриця)
             for (int i = 0; i < size; i++)
             {
                 int rowIndex = dataGridView.Rows.Add();
                 dataGridView.Rows[rowIndex].HeaderCell.Value = $"Рівняння {i + 1}";
 
-                // Устанавливаем значения по умолчанию (единичная матрица)
+                // Заповнюємо значення за замовчуванням
                 for (int j = 0; j < size + 1; j++)
                 {
                     if (j < size)
@@ -234,25 +240,27 @@ namespace LinearSystemSolver
                 }
             }
 
-            // Настройка внешнего вида
+            // Налаштування зовнішнього вигляду таблиці
             dataGridView.DefaultCellStyle.SelectionBackColor = Color.LightBlue;
             dataGridView.AlternatingRowsDefaultCellStyle.BackColor = Color.AliceBlue;
         }
 
+        // Обробник зміни розміру системи
         private void SizeNumericUpDown_ValueChanged(object sender, EventArgs e)
         {
             size = (int)sizeNumericUpDown.Value;
-            InitializeDataGridView();
-            resultTextBox.Clear();
+            InitializeDataGridView(); // Перестворюємо таблицю
+            resultTextBox.Clear();    // Очищаємо результати
         }
 
+        // Обробник кнопки "Розв'язати"
         private void SolveButton_Click(object sender, EventArgs e)
         {
             try
             {
                 double[,] matrix = new double[size, size + 1];
 
-                // Считываем данные из DataGridView
+                // Зчитуємо дані з таблиці
                 for (int i = 0; i < size; i++)
                 {
                     for (int j = 0; j < size + 1; j++)
@@ -280,7 +288,7 @@ namespace LinearSystemSolver
                 string methodName = methodComboBox.SelectedItem.ToString();
                 bool showSteps = showStepsCheckBox.Checked;
 
-                // Выбираем метод решения
+                // Вибираємо метод розв'язання
                 switch (methodComboBox.SelectedIndex)
                 {
                     case 0: // Метод Гауса
@@ -289,13 +297,14 @@ namespace LinearSystemSolver
                     case 1: // Метод Жордана-Гауса
                         result = JordanGaussSolver.Solve(matrix, showSteps);
                         break;
-                    case 2: // Матричный метод
+                    case 2: // Матричний метод
                         result = MatrixMethodSolver.Solve(matrix, showSteps);
                         break;
                     default:
                         throw new InvalidOperationException("Невідомий метод розв'язання");
                 }
 
+                // Відображаємо результати
                 DisplayResult(result, methodName);
             }
             catch (Exception ex)
@@ -306,11 +315,13 @@ namespace LinearSystemSolver
             }
         }
 
+        // Відображення результатів розв'язання
         private void DisplayResult(SolverResult result, string methodName)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"═══ {methodName} ═══\n");
 
+            // Форматуємо результат залежно від статусу
             switch (result.Status)
             {
                 case SolutionStatus.UniqueSolution:
@@ -323,7 +334,6 @@ namespace LinearSystemSolver
 
                     sb.AppendLine($"\n🔍 Перевірка точності:");
                     sb.AppendLine($"Максимальна похибка: {result.MaxError:E3}");
-
                     break;
 
                 case SolutionStatus.InfiniteSolutions:
@@ -339,6 +349,7 @@ namespace LinearSystemSolver
                     break;
             }
 
+            // Додаємо кроки розв'язання, якщо вони є
             if (!string.IsNullOrEmpty(result.Steps))
             {
                 sb.AppendLine("\n" + new string('═', 40));
@@ -350,12 +361,14 @@ namespace LinearSystemSolver
             resultTextBox.Text = sb.ToString();
         }
 
+        // Обробник кнопки "Очистити"
         private void ClearButton_Click(object sender, EventArgs e)
         {
-            InitializeDataGridView();
-            resultTextBox.Clear();
+            InitializeDataGridView(); // Відновлюємо таблицю
+            resultTextBox.Clear();   // Очищаємо результати
         }
 
+        // Обробник кнопки "Зберегти"
         private void SaveButton_Click(object sender, EventArgs e)
         {
             try
@@ -363,14 +376,29 @@ namespace LinearSystemSolver
                 SaveFileDialog saveDialog = new SaveFileDialog
                 {
                     Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
-                    Title = "Зберегти матрицю"
+                    Title = "Зберегти матрицю та результати"
                 };
 
                 if (saveDialog.ShowDialog() == DialogResult.OK)
                 {
                     StringBuilder sb = new StringBuilder();
-                    sb.AppendLine($"{size}"); // Размер системы
 
+                    // Форматуємо заголовок файлу
+                    sb.AppendLine("═══════════════════════════════════════════════════");
+                    sb.AppendLine("        СИСТЕМА ЛІНІЙНИХ АЛГЕБРАЇЧНИХ РІВНЯНЬ");
+                    sb.AppendLine("═══════════════════════════════════════════════════");
+                    sb.AppendLine($"Дата збереження: {DateTime.Now:dd.MM.yyyy HH:mm:ss}");
+                    sb.AppendLine($"Розмір системи: {size}X{size}");
+                    sb.AppendLine($"Метод розв'язання: {methodComboBox.SelectedItem}");
+                    sb.AppendLine($"Детальні кроки: {(showStepsCheckBox.Checked ? "Так" : "Ні")}");
+                    sb.AppendLine();
+
+                    // Зберігаємо розмір системи
+                    sb.AppendLine("МАТРИЦЯ КОЕФІЦІЄНТІВ:");
+                    sb.AppendLine(new string('-', 30));
+                    sb.AppendLine($"{size}"); // Розмір для можливості завантаження
+
+                    // Зберігаємо дані матриці
                     for (int i = 0; i < size; i++)
                     {
                         for (int j = 0; j < size + 1; j++)
@@ -382,8 +410,53 @@ namespace LinearSystemSolver
                         sb.AppendLine();
                     }
 
+                    // Зберігаємо матрицю у читабельному форматі
+                    sb.AppendLine();
+                    sb.AppendLine("РОЗШИРЕНА МАТРИЦЯ (читабельний формат):");
+                    sb.AppendLine(new string('-', 40));
+
+                    for (int i = 0; i < size; i++)
+                    {
+                        sb.Append("│ ");
+                        for (int j = 0; j < size; j++)
+                        {
+                            string value = dataGridView.Rows[i].Cells[j].Value?.ToString() ?? "0";
+                            sb.AppendFormat("{0,8}", value);
+                            sb.Append("  ");
+                        }
+                        sb.Append("│ ");
+                        string bValue = dataGridView.Rows[i].Cells[size].Value?.ToString() ?? "0";
+                        sb.AppendFormat("{0,8}", bValue);
+                        sb.AppendLine(" │");
+                    }
+                    sb.AppendLine();
+
+                    // Зберігаємо результати, якщо вони є
+                    if (!string.IsNullOrWhiteSpace(resultTextBox.Text))
+                    {
+                        sb.AppendLine();
+                        sb.AppendLine("РЕЗУЛЬТАТИ РОЗВ'ЯЗАННЯ:");
+                        sb.AppendLine(new string('═', 50));
+                        sb.AppendLine(resultTextBox.Text);
+                    }
+                    else
+                    {
+                        sb.AppendLine();
+                        sb.AppendLine("РЕЗУЛЬТАТИ РОЗВ'ЯЗАННЯ:");
+                        sb.AppendLine(new string('═', 50));
+                        sb.AppendLine("Система ще не розв'язана.");
+                    }
+
+                    // Додаємо інформацію про програму
+                    sb.AppendLine();
+                    sb.AppendLine(new string('═', 50));
+                    sb.AppendLine("Створено програмою: Розв'язання СЛАР точними методами");
+                    sb.AppendLine($"Версія: 1.0");
+                    sb.AppendLine(new string('═', 50));
+
+                    // Записуємо у файл
                     File.WriteAllText(saveDialog.FileName, sb.ToString(), Encoding.UTF8);
-                    MessageBox.Show("Матрицю збережено успішно!", "Збереження",
+                    MessageBox.Show("Матрицю та результаты збережено успішно!", "Збереження",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
@@ -394,6 +467,7 @@ namespace LinearSystemSolver
             }
         }
 
+        // Обробник кнопки "Завантажити"
         private void LoadButton_Click(object sender, EventArgs e)
         {
             try
@@ -414,7 +488,45 @@ namespace LinearSystemSolver
                         return;
                     }
 
-                    int newSize = int.Parse(lines[0]);
+                    // Шукаємо рядок з розміром системи
+                    int sizeLineIndex = -1;
+                    int newSize = 0;
+
+                    for (int i = 0; i < lines.Length; i++)
+                    {
+                        // Спроба знайти розмір системи
+                        if (int.TryParse(lines[i].Trim(), out newSize) && newSize >= 2 && newSize <= 10)
+                        {
+                            // Перевіряємо, що наступні рядки містять дані матриці
+                            if (i + newSize < lines.Length)
+                            {
+                                bool isValidMatrix = true;
+                                for (int j = 1; j <= newSize; j++)
+                                {
+                                    string[] values = lines[i + j].Split('\t');
+                                    if (values.Length != newSize + 1)
+                                    {
+                                        isValidMatrix = false;
+                                        break;
+                                    }
+                                }
+
+                                if (isValidMatrix)
+                                {
+                                    sizeLineIndex = i;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (sizeLineIndex == -1)
+                    {
+                        MessageBox.Show("Не вдалося знайти коректні дані матриці у файлі!", "Помилка",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
                     if (newSize < 2 || newSize > 10)
                     {
                         MessageBox.Show("Розмір системи повинен бути від 2 до 10!", "Помилка",
@@ -422,18 +534,23 @@ namespace LinearSystemSolver
                         return;
                     }
 
+                    // Оновлюємо розмір системи та ініціалізуємо таблицю
                     sizeNumericUpDown.Value = newSize;
                     size = newSize;
                     InitializeDataGridView();
 
-                    for (int i = 0; i < size && i + 1 < lines.Length; i++)
+                    // Завантажуємо дані матриці
+                    for (int i = 0; i < size && sizeLineIndex + i + 1 < lines.Length; i++)
                     {
-                        string[] values = lines[i + 1].Split('\t');
+                        string[] values = lines[sizeLineIndex + i + 1].Split('\t');
                         for (int j = 0; j < Math.Min(values.Length, size + 1); j++)
                         {
                             dataGridView.Rows[i].Cells[j].Value = values[j];
                         }
                     }
+
+                    // Очищаємо результати
+                    resultTextBox.Clear();
 
                     MessageBox.Show("Матрицю завантажено успішно!", "Завантаження",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);

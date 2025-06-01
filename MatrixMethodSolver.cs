@@ -4,27 +4,28 @@ using System.Text;
 namespace LinearSystemSolver
 {
     /// <summary>
-    /// Решение СЛАР матричным методом (через обратную матрицу)
+    /// Клас для розв'язання систем лінійних рівнянь матричним методом (через обернену матрицю)
     /// </summary>
     public class MatrixMethodSolver
     {
         /// <summary>
-        /// Решает систему линейных уравнений матричным методом
-        /// Система Ax = b решается как x = A⁻¹b
+        /// Розв'язує систему лінійних рівнянь матричним методом
+        /// Система Ax = b розв'язується як x = A⁻¹b
         /// </summary>
-        /// <param name="matrix">Расширенная матрица системы</param>
-        /// <param name="showSteps">Показывать шаги решения</param>
-        /// <returns>Результат решения</returns>
+        /// <param name="matrix">Розширена матриця системи</param>
+        /// <param name="showSteps">Чи показувати кроки розв'язання</param>
+        /// <returns>Результат розв'язання</returns>
         public static SolverResult Solve(double[,] matrix, bool showSteps = false)
         {
-            var result = new SolverResult();
-            StringBuilder steps = new StringBuilder();
+            var result = new SolverResult(); // Об'єкт для зберігання результату
+            StringBuilder steps = new StringBuilder(); // Для збереження кроків розв'язання
 
             try
             {
-                int n = matrix.GetLength(0);
-                double[,] originalMatrix = MatrixHelper.CloneMatrix(matrix);
+                int n = matrix.GetLength(0); // Розмірність системи
+                double[,] originalMatrix = MatrixHelper.CloneMatrix(matrix); // Зберігаємо оригінальну матрицю
 
+                // Якщо потрібно показувати кроки
                 if (showSteps)
                 {
                     steps.AppendLine("🔢 МАТРИЧНИЙ МЕТОД (ЧЕРЕЗ ОБЕРНЕНУ МАТРИЦЮ)");
@@ -33,10 +34,11 @@ namespace LinearSystemSolver
                     steps.AppendLine("💡 Розв'язок: x = A⁻¹ × b\n");
                 }
 
-                // Извлекаем матрицу коэффициентов A и вектор правых частей b
+                // Виділяємо матрицю коефіцієнтів A та вектор правих частин b
                 double[,] A = MatrixHelper.ExtractCoefficientMatrix(matrix);
                 double[] b = MatrixHelper.ExtractRightHandSide(matrix);
 
+                // Виведення інформації про кроки
                 if (showSteps)
                 {
                     steps.AppendLine("📊 Матриця коефіцієнтів A:");
@@ -50,7 +52,7 @@ namespace LinearSystemSolver
                     steps.AppendLine();
                 }
 
-                // Вычисляем определитель
+                // Обчислюємо визначник матриці A
                 result.Determinant = MatrixHelper.CalculateDeterminant(A);
 
                 if (showSteps)
@@ -58,7 +60,7 @@ namespace LinearSystemSolver
                     steps.AppendLine($"🧮 Визначник матриці A: det(A) = {result.Determinant:F6}");
                 }
 
-                // Проверяем, что матрица не вырождена
+                // Перевіряємо, чи матриця не вироджена (визначник ≠ 0)
                 if (MatrixHelper.IsZero(result.Determinant))
                 {
                     result.Status = SolutionStatus.Error;
@@ -79,7 +81,7 @@ namespace LinearSystemSolver
                     steps.AppendLine("✅ Матриця невироджена, обернена матриця існує.\n");
                 }
 
-                // Находим обратную матрицу
+                // Обчислюємо обернену матрицю A⁻¹
                 double[,] A_inv;
                 try
                 {
@@ -99,7 +101,7 @@ namespace LinearSystemSolver
                     steps.Append(MatrixHelper.MatrixToString(A_inv));
                 }
 
-                // Умножаем обратную матрицу на вектор b
+                // Обчислюємо розв'язок: x = A⁻¹ × b
                 double[] solution = MatrixHelper.MultiplyMatrixVector(A_inv, b);
 
                 if (showSteps)
@@ -108,6 +110,7 @@ namespace LinearSystemSolver
                     steps.AppendLine(new string('─', 30));
                     steps.AppendLine("x = A⁻¹ × b\n");
 
+                    // Виводимо деталі обчислення для кожного x
                     for (int i = 0; i < n; i++)
                     {
                         StringBuilder calc = new StringBuilder();
@@ -125,7 +128,7 @@ namespace LinearSystemSolver
                     steps.AppendLine();
                 }
 
-                // Проверка точности
+                // Перевіряємо точність розв'язку
                 result.MaxError = MatrixHelper.CalculateMaxError(originalMatrix, solution);
 
                 if (showSteps)
@@ -134,6 +137,7 @@ namespace LinearSystemSolver
                     steps.AppendLine(new string('─', 25));
                     steps.AppendLine("Підставляємо знайдені значення у початкову систему:\n");
 
+                    // Для кожного рівняння показуємо перевірку
                     for (int i = 0; i < n; i++)
                     {
                         double sum = 0;
@@ -155,6 +159,7 @@ namespace LinearSystemSolver
 
                     steps.AppendLine($"\n🎯 Максимальна похибка: {result.MaxError:E3}");
 
+                    // Оцінюємо точність розв'язку
                     if (result.MaxError < 1e-10)
                     {
                         steps.AppendLine("✅ Розв'язок знайдено з високою точністю!");
@@ -169,6 +174,7 @@ namespace LinearSystemSolver
                     }
                 }
 
+                // Заповнюємо результат
                 result.Solution = solution;
                 result.Status = SolutionStatus.UniqueSolution;
                 result.Steps = steps.ToString();
@@ -177,6 +183,7 @@ namespace LinearSystemSolver
             }
             catch (Exception ex)
             {
+                // Обробка помилок
                 result.Status = SolutionStatus.Error;
                 result.ErrorMessage = ex.Message;
                 result.Steps = steps.ToString();

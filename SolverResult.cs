@@ -3,51 +3,66 @@
 namespace LinearSystemSolver
 {
     /// <summary>
-    /// Статус решения системы уравнений
+    /// Перелік можливих станів розв'язку системи рівнянь
     /// </summary>
     public enum SolutionStatus
     {
-        UniqueSolution,     // Единственное решение
-        InfiniteSolutions,  // Бесконечное множество решений
-        NoSolution,        // Нет решений (несовместна)
-        Error              // Ошибка в вычислениях
+        /// <summary>Система має єдиний розв'язок</summary>
+        UniqueSolution,
+
+        /// <summary>Система має нескінченну кількість розв'язків</summary>
+        InfiniteSolutions,
+
+        /// <summary>Система несумісна (немає розв'язків)</summary>
+        NoSolution,
+
+        /// <summary>Виникла помилка під час обчислень</summary>
+        Error
     }
 
     /// <summary>
-    /// Результат решения системы линейных уравнений
+    /// Клас, що містить результати розв'язання системи лінійних рівнянь
     /// </summary>
     public class SolverResult
     {
         /// <summary>
-        /// Статус решения
+        /// Статус розв'язку системи (з переліку SolutionStatus)
         /// </summary>
         public SolutionStatus Status { get; set; }
 
         /// <summary>
-        /// Решение системы (если найдено)
+        /// Масив значень змінних - розв'язок системи
+        /// Заповнюється лише при Status = UniqueSolution
         /// </summary>
         public double[] Solution { get; set; }
 
         /// <summary>
-        /// Максимальная погрешность проверки
+        /// Максимальна похибка при перевірці розв'язку
+        /// Обчислюється як максимальна різниця між лівою та правою частиною рівнянь
         /// </summary>
         public double MaxError { get; set; }
 
         /// <summary>
-        /// Детальные шаги решения
+        /// Детальний опис кроків розв'язання
+        /// Містить проміжні результати обчислень
         /// </summary>
         public string Steps { get; set; }
 
         /// <summary>
-        /// Сообщение об ошибке
+        /// Повідомлення про помилку (заповнюється при Status = Error)
         /// </summary>
         public string ErrorMessage { get; set; }
 
         /// <summary>
-        /// Определитель матрицы коэффициентов
+        /// Визначник матриці коефіцієнтів системи
+        /// Допомагає аналізувати особливості системи
         /// </summary>
         public double Determinant { get; set; }
 
+        /// <summary>
+        /// Конструктор за замовчуванням
+        /// Ініціалізує рядкові властивості
+        /// </summary>
         public SolverResult()
         {
             Steps = string.Empty;
